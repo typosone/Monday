@@ -34,11 +34,13 @@ $(function () {
         }
     });
 
+    var tmp = new Bullet(WIDTH / 2, HEIGHT / 2, -8);
     var mainLoop = function () {
         context.fillStyle = "#000";
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         player.draw(context);
+        tmp.draw(context);
 
         setTimeout(mainLoop, 1000 / FPS);
     };
@@ -53,50 +55,77 @@ var Player = function (input) {
 
     this.input = input;
     this.pos = {'x': 0, 'y': 0};
+};
 
-    Player.prototype.move = function () {
-        if (this.input.isLeft && this.input.isRight) {
-            // なにもしない
-        } else if (this.input.isLeft) {
-            this.pos.x -= this.SPEED;
-            console.log(this.pos.x);
-            if (this.pos.x < this.OFFSET_X) {
-                this.pos.x = this.OFFSET_X;
-            }
-        } else if (this.input.isRight) {
-            this.pos.x += this.SPEED;
-            if (this.pos.x + this.OFFSET_X > WIDTH) {
-                this.pos.x = WIDTH - this.OFFSET_X;
-            }
+Player.prototype.move = function () {
+    if (this.input.isLeft && this.input.isRight) {
+        // なにもしない
+    } else if (this.input.isLeft) {
+        this.pos.x -= this.SPEED;
+        console.log(this.pos.x);
+        if (this.pos.x < this.OFFSET_X) {
+            this.pos.x = this.OFFSET_X;
         }
-    };
-
-    Player.prototype.draw = function (context) {
-        this.move();
-        context.save();
-        context.translate(this.pos.x, this.pos.y);
-        context.strokeStyle = "#FFF";
-        context.fillStyle = "#FFF";
-
-        context.beginPath();
-        context.moveTo(0, 10);
-        context.lineTo(-20, 10);
-        context.lineTo(-20, -7);
-        context.lineTo(-3, -7);
-        context.lineTo(0, -10);
-        context.lineTo(3, -7);
-        context.lineTo(20, -7);
-        context.lineTo(20, 10);
-        context.closePath();
-        context.stroke();
-        context.fill();
-
-        context.restore();
+    } else if (this.input.isRight) {
+        this.pos.x += this.SPEED;
+        if (this.pos.x + this.OFFSET_X > WIDTH) {
+            this.pos.x = WIDTH - this.OFFSET_X;
+        }
     }
+};
+
+Player.prototype.draw = function (context) {
+    this.move();
+    context.save();
+    context.translate(this.pos.x, this.pos.y);
+    context.strokeStyle = "#FFF";
+    context.fillStyle = "#FFF";
+
+    context.beginPath();
+    context.moveTo(0, 10);
+    context.lineTo(-20, 10);
+    context.lineTo(-20, -7);
+    context.lineTo(-3, -7);
+    context.lineTo(0, -10);
+    context.lineTo(3, -7);
+    context.lineTo(20, -7);
+    context.lineTo(20, 10);
+    context.closePath();
+    context.stroke();
+    context.fill();
+
+    context.restore();
 };
 
 var Input = function () {
     Input.prototype.isLeft = false;
     Input.prototype.isRight = false;
     Input.prototype.isSpace = false;
+};
+
+var Bullet = function (x, y, speed) {
+    this.pos = {x: x, y: y};
+    this.speed = speed;
+};
+
+Bullet.prototype.move = function () {
+    this.pos.y += this.speed;
+};
+
+Bullet.prototype.draw = function (context) {
+    this.move();
+    context.save();
+    context.translate(this.pos.x, this.pos.y);
+    context.strokeStyle = "#FFF";
+
+    context.beginPath();
+    context.moveTo(2, 5);
+    context.lineTo(-2, 3);
+    context.lineTo(2, 1);
+    context.lineTo(-2, -1);
+    context.lineTo(2, -3);
+    context.lineTo(-2, -5);
+    context.stroke();
+
+    context.restore();
 };
