@@ -8,17 +8,29 @@ $(function () {
     var canvas = $("canvas#game_window").get(0);
     var context = canvas.getContext("2d");
 
-    var player = new Player();
+    var input = new Input();
+
+    var player = new Player(input);
     player.pos.x = WIDTH / 2;
     player.pos.y = 380;
 
     $(document).keydown(function (event) {
         switch (event.which) {
             case 37: // cursor left
-                player.pos.x -= 5;
+                input.isLeft = true;
                 break;
             case 39: // cursor right
-                player.pos.x += 5;
+                input.isRight = true;
+                break;
+        }
+    });
+    $(document).keyup(function (event) {
+        switch (event.which) {
+            case 37: // cursor left
+                input.isLeft = false;
+                break;
+            case 39: // cursor right
+                input.isRight = false;
                 break;
         }
     });
@@ -36,10 +48,23 @@ $(function () {
 
 });
 
-var Player = function () {
+var Player = function (input) {
+    Player.prototype.SPEED = 5;
+
+    this.input = input;
     this.pos = {'x': 0, 'y': 0};
 
+    Player.prototype.move = function () {
+        if (this.input.isLeft && this.input.isRight) {
+            // なにもしない
+        } else if (this.input.isLeft) {
+            this.pos.x -= this.SPEED;
+        } else if (this.input.isRight) {
+            this.pos.x += this.SPEED;
+        }
+    }
     Player.prototype.draw = function (context) {
+        this.move();
         context.save()
         context.translate(this.pos.x, this.pos.y);
         context.strokeStyle = "#FFF";
@@ -60,4 +85,10 @@ var Player = function () {
 
         context.restore();
     }
+}
+
+var Input = function() {
+    Input.prototype.isLeft = false;
+    Input.prototype.isRight = false;
+    Input.prototype.isSpace = false;
 }
