@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Input to page</title>
+    <link rel="stylesheet" href="01.css">
+</head>
+<body>
+
+<div>
+    商品
+    <select id="item">
+        <option value="100.8" selected>りんご(100.8円)</option>
+        <option value="200.8">みかん(200.8円)</option>
+        <option value="150.8">バナナ(150.8円)</option>
+    </select>
+
+    個数
+    <select id="num">
+        <option value="1" selected>1個</option>
+        <option value="2">2個</option>
+        <option value="3">3個</option>
+    </select>
+
+    <button type="button" id="calcButton">計算</button>
+</div>
+
+<div class="viewarea">
+    単価「<span id="itemSel"></span>」円、
+    個数「<span id="numSel"></span>」個で、
+    合計「<span id="result"></span>」円。
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="03.js"></script>
+</body>
+</html>
