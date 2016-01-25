@@ -21,6 +21,9 @@ $(function () {
             case 39: // cursor right
                 input.isRight = true;
                 break;
+            case 32:
+                input.isSpace = true;
+                break;
         }
     });
     $(document).keyup(function (event) {
@@ -31,16 +34,17 @@ $(function () {
             case 39: // cursor right
                 input.isRight = false;
                 break;
+            case 32:
+                input.isSpace = false;
+                break;
         }
     });
 
-    var tmp = new Bullet(WIDTH / 2, HEIGHT / 2, -8);
     var mainLoop = function () {
         context.fillStyle = "#000";
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         player.draw(context);
-        tmp.draw(context);
 
         setTimeout(mainLoop, 1000 / FPS);
     };
@@ -52,9 +56,11 @@ $(function () {
 var Player = function (input) {
     Player.prototype.SPEED = 5;
     Player.prototype.OFFSET_X = 20;
+    Player.prototype.BULLET_SPEED = -10;
 
     this.input = input;
     this.pos = {'x': 0, 'y': 0};
+    this.bullet = null;
 };
 
 Player.prototype.move = function () {
@@ -62,7 +68,6 @@ Player.prototype.move = function () {
         // なにもしない
     } else if (this.input.isLeft) {
         this.pos.x -= this.SPEED;
-        console.log(this.pos.x);
         if (this.pos.x < this.OFFSET_X) {
             this.pos.x = this.OFFSET_X;
         }
@@ -75,6 +80,16 @@ Player.prototype.move = function () {
 };
 
 Player.prototype.draw = function (context) {
+    if (this.input.isSpace && this.bullet == null) {
+        this.bullet = new Bullet(
+            this.pos.x, this.pos.y, this.BULLET_SPEED);
+    }
+    if (this.bullet != null) {
+        this.bullet.draw(context);
+        if (!this.bullet.isValid()) {
+            this.bullet = null;
+        }
+    }
     this.move();
     context.save();
     context.translate(this.pos.x, this.pos.y);
@@ -104,12 +119,17 @@ var Input = function () {
 };
 
 var Bullet = function (x, y, speed) {
+    Bullet.prototype.OFFSET_Y = 5;
     this.pos = {x: x, y: y};
     this.speed = speed;
 };
 
 Bullet.prototype.move = function () {
     this.pos.y += this.speed;
+};
+
+Bullet.prototype.isValid = function () {
+    return this.pos.y + this.OFFSET_Y > 0;
 };
 
 Bullet.prototype.draw = function (context) {
