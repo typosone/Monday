@@ -1,11 +1,10 @@
-$(function () {
-    var FPS = 30;
-    var WIDTH = 600;
-    var HEIGHT = 400;
+var FPS = 30;
+var WIDTH = 600;
+var HEIGHT = 400;
 
-    $("canvas#game_window").width(WIDTH);
-    $("canvas#game_window").height(HEIGHT);
-    var canvas = $("canvas#game_window").get(0);
+$(function () {
+    var canvas = $("canvas#game_window")
+        .width(WIDTH).height(HEIGHT).get(0);
     var context = canvas.getContext("2d");
 
     var input = new Input();
@@ -35,14 +34,14 @@ $(function () {
         }
     });
 
-    var mainLoop = function() {
+    var mainLoop = function () {
         context.fillStyle = "#000";
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         player.draw(context);
 
         setTimeout(mainLoop, 1000 / FPS);
-    }
+    };
 
     mainLoop();
 
@@ -50,6 +49,7 @@ $(function () {
 
 var Player = function (input) {
     Player.prototype.SPEED = 5;
+    Player.prototype.OFFSET_X = 20;
 
     this.input = input;
     this.pos = {'x': 0, 'y': 0};
@@ -59,13 +59,21 @@ var Player = function (input) {
             // なにもしない
         } else if (this.input.isLeft) {
             this.pos.x -= this.SPEED;
+            console.log(this.pos.x);
+            if (this.pos.x < this.OFFSET_X) {
+                this.pos.x = this.OFFSET_X;
+            }
         } else if (this.input.isRight) {
             this.pos.x += this.SPEED;
+            if (this.pos.x + this.OFFSET_X > WIDTH) {
+                this.pos.x = WIDTH - this.OFFSET_X;
+            }
         }
-    }
+    };
+
     Player.prototype.draw = function (context) {
         this.move();
-        context.save()
+        context.save();
         context.translate(this.pos.x, this.pos.y);
         context.strokeStyle = "#FFF";
         context.fillStyle = "#FFF";
@@ -85,10 +93,10 @@ var Player = function (input) {
 
         context.restore();
     }
-}
+};
 
-var Input = function() {
+var Input = function () {
     Input.prototype.isLeft = false;
     Input.prototype.isRight = false;
     Input.prototype.isSpace = false;
-}
+};
