@@ -48,6 +48,13 @@ $(function () {
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         player.draw(context);
+
+        if (player.getBullet() != null) {
+            if (manager.collision(player.getBullet().getCoordinates())) {
+                player.removeBullet();
+            }
+        }
+
         manager.draw(context);
 
         setTimeout(mainLoop, 1000 / FPS);
@@ -116,6 +123,14 @@ Player.prototype.draw = function (context) {
     context.restore();
 };
 
+Player.prototype.getBullet = function () {
+    return this.bullet;
+};
+
+Player.prototype.removeBullet = function () {
+    this.bullet = null;
+};
+
 var Input = function () {
     Input.prototype.isLeft = false;
     Input.prototype.isRight = false;
@@ -154,6 +169,13 @@ Bullet.prototype.draw = function (context) {
     context.restore();
 };
 
+Bullet.prototype.getCoordinates = function () {
+    return {
+        left: this.pos.x - 2, top: this.pos.y - 5,
+        right: this.pos.x + 2, bottom: this.pos.y + 5
+    };
+};
+
 var Enemy = function (image) {
     Enemy.prototype.SIZE = 32;
     this.image = image;
@@ -176,8 +198,22 @@ Enemy.prototype.draw = function (context) {
     context.restore();
 };
 
+Enemy.prototype.isCollision = function (bullet) {
+    var left = this.pos.x - this.SIZE / 2;
+    var top = this.pos.y - this.SIZE / 2;
+    var right = this.pos.x + this.SIZE / 2;
+    var bottom = this.pos.y + this.SIZE / 2;
+    var isHorizontal = left < bullet.left && bullet.left < right
+        || left < bullet.right && bullet.right < right;
+
+    if (!isHorizontal) {
+        return false;
+    }
+    return top < bullet.top && bullet.top < bottom;
+};
+
 var EnemyManager = function () {
-    EnemyManager.prototype.HORIZONTAL_COUNT = 10;
+    EnemyManager.prototype.HORIZONTAL_COUNT = 8;
     EnemyManager.prototype.VERTICAL_COUNT = 4;
     this.enemyList = [];
     this.enemyImageList = [];
@@ -188,7 +224,6 @@ EnemyManager.prototype.loadImage = function () {
     var img = new Image();
     img.src = "invader1.png";
     this.enemyImageList.push(img);
-    //this.enemyImageList.push(new Image().src = "invader1.png");
     /*
      img = new Image();
      img.src = "invader2.png";
@@ -200,7 +235,7 @@ EnemyManager.prototype.generateEnemies = function () {
     for (var y = 0; y < this.VERTICAL_COUNT; y++) {
         for (var x = 0; x < this.HORIZONTAL_COUNT; x++) {
             var enemy = new Enemy(this.enemyImageList[0]);
-            var dx = (x + 1) * enemy.SIZE * 1.5;
+            var dx = (x + 1) * enemy.SIZE * 2;
             var dy = (y + 1) * enemy.SIZE;
             enemy.move(dx, dy);
             this.enemyList.push(enemy);
@@ -209,7 +244,25 @@ EnemyManager.prototype.generateEnemies = function () {
 };
 
 EnemyManager.prototype.draw = function (context) {
-    this.enemyList.forEach(function(enemy) {
+    this.enemyList.forEach(function (enemy) {
         enemy.draw(context);
     });
-}
+};
+
+EnemyManager.prototype.collision = function (bullet) {
+    var target = null;
+    this.enemyList.forEach(function (enemy) {
+        if (target != null) {
+            return;
+        }
+        if (enemy.isCollision(bullet)) {
+            target = enemy;
+        }
+    });
+    if (target != null) {
+        var index = this.enemyList.indexOf(target);
+        this.enemyList.splice(index, 1);
+        return true;
+    }
+    return false;
+};
