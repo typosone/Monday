@@ -13,6 +13,9 @@ $(function () {
     player.pos.x = WIDTH / 2;
     player.pos.y = 380;
 
+    var manager = new EnemyManager();
+    manager.generateEnemies();
+
     $(document).keydown(function (event) {
         switch (event.which) {
             case 37: // cursor left
@@ -45,6 +48,7 @@ $(function () {
         context.fillRect(0, 0, WIDTH, HEIGHT);
 
         player.draw(context);
+        manager.draw(context);
 
         setTimeout(mainLoop, 1000 / FPS);
     };
@@ -149,3 +153,63 @@ Bullet.prototype.draw = function (context) {
 
     context.restore();
 };
+
+var Enemy = function (image) {
+    Enemy.prototype.SIZE = 32;
+    this.image = image;
+    this.pos = {x: 0, y: 0};
+};
+
+
+Enemy.prototype.move = function (dx, dy) {
+    this.pos.x += dx;
+    this.pos.y += dy;
+};
+
+Enemy.prototype.draw = function (context) {
+    context.save();
+
+    context.translate(this.pos.x, this.pos.y);
+    var offset = this.SIZE / 2;
+    context.drawImage(this.image, -offset, -offset, this.SIZE, this.SIZE);
+
+    context.restore();
+};
+
+var EnemyManager = function () {
+    EnemyManager.prototype.HORIZONTAL_COUNT = 10;
+    EnemyManager.prototype.VERTICAL_COUNT = 4;
+    this.enemyList = [];
+    this.enemyImageList = [];
+    this.loadImage();
+};
+
+EnemyManager.prototype.loadImage = function () {
+    var img = new Image();
+    img.src = "invader1.png";
+    this.enemyImageList.push(img);
+    //this.enemyImageList.push(new Image().src = "invader1.png");
+    /*
+     img = new Image();
+     img.src = "invader2.png";
+     this.enemyImageList.push(img);
+     */
+};
+
+EnemyManager.prototype.generateEnemies = function () {
+    for (var y = 0; y < this.VERTICAL_COUNT; y++) {
+        for (var x = 0; x < this.HORIZONTAL_COUNT; x++) {
+            var enemy = new Enemy(this.enemyImageList[0]);
+            var dx = (x + 1) * enemy.SIZE * 1.5;
+            var dy = (y + 1) * enemy.SIZE;
+            enemy.move(dx, dy);
+            this.enemyList.push(enemy);
+        }
+    }
+};
+
+EnemyManager.prototype.draw = function (context) {
+    this.enemyList.forEach(function(enemy) {
+        enemy.draw(context);
+    });
+}
