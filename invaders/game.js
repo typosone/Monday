@@ -266,3 +266,5 @@ EnemyManager.prototype.collision = function (bullet) {
     }
     return false;
 };
+
+test = 'test'
